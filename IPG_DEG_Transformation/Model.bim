@@ -1,0 +1,1893 @@
+{
+  "name": "SemanticModel",
+  "compatibilityLevel": 1500,
+  "model": {
+    "culture": "en-US",
+    "dataSources": [
+      {
+        "type": "structured",
+        "name": "AnalysisServices/ipg_bug intel com;ipg_bug",
+        "connectionDetails": {
+          "protocol": "analysis-services",
+          "address": {
+            "server": "ipg_bug.intel.com",
+            "database": "ipg_bug"
+          },
+          "authentication": null,
+          "query": null
+        },
+        "options": {
+          "typedMeasureColumns": true,
+          "implementation": "2.0"
+        },
+        "credential": {
+          "AuthenticationKind": "ServiceAccount"
+        }
+      },
+      {
+        "type": "structured",
+        "name": "AnalysisServices/ipg_feature intel com;ipg_feature",
+        "connectionDetails": {
+          "protocol": "analysis-services",
+          "address": {
+            "server": "ipg_feature.intel.com",
+            "database": "ipg_feature"
+          },
+          "authentication": null,
+          "query": null
+        },
+        "options": {
+          "typedMeasureColumns": true,
+          "implementation": "2.0"
+        },
+        "credential": {
+          "AuthenticationKind": "ServiceAccount"
+        }
+      },
+      {
+        "type": "structured",
+        "name": "AnalysisServices/ipg_golden_cube intel com;ipg_golden_cube",
+        "connectionDetails": {
+          "protocol": "analysis-services",
+          "address": {
+            "server": "ipg_golden_cube.intel.com",
+            "database": "ipg_golden_cube"
+          },
+          "authentication": null,
+          "query": null
+        },
+        "options": {
+          "typedMeasureColumns": true,
+          "implementation": "2.0"
+        },
+        "credential": {
+          "AuthenticationKind": "ServiceAccount"
+        }
+      },
+      {
+        "name": "Custom",
+        "connectionString": "Provider=MSDASQL;Persist Security Info=False;Initial Catalog=HSD_ES;DSN=iBI DaaS",
+        "impersonationMode": "impersonateServiceAccount",
+        "annotations": [
+          {
+            "name": "ConnectionEditUISource",
+            "value": "Others"
+          }
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "name": "QueryBug",
+        "columns": [
+          {
+            "name": "Bug",
+            "dataType": "int64",
+            "sourceColumn": "Bug"
+          },
+          {
+            "type": "calculated",
+            "name": "UniqueKey",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": "QueryBug[Soc Die]&\"_\"&QueryBug[Configuration]"
+          },
+          {
+            "name": "bug_category",
+            "dataType": "string",
+            "sourceColumn": "bug_category"
+          },
+          {
+            "name": "bugeco.type",
+            "dataType": "string",
+            "sourceColumn": "bugeco.type"
+          },
+          {
+            "name": "Configuration",
+            "dataType": "string",
+            "sourceColumn": "Configuration"
+          },
+          {
+            "name": "DEG_TapeIn_SeqNbr",
+            "dataType": "int64",
+            "sourceColumn": "DEG_TapeIn_SeqNbr"
+          },
+          {
+            "name": "env_found",
+            "dataType": "string",
+            "sourceColumn": "env_found"
+          },
+          {
+            "name": "id",
+            "dataType": "string",
+            "sourceColumn": "id"
+          },
+          {
+            "name": "IPFamily",
+            "dataType": "string",
+            "sourceColumn": "IPFamily"
+          },
+          {
+            "name": "is_found_bySoc",
+            "dataType": "string",
+            "sourceColumn": "is_found_bySoc"
+          },
+          {
+            "name": "is_PreSiPostSi",
+            "dataType": "string",
+            "sourceColumn": "is_PreSiPostSi"
+          },
+          {
+            "name": "IsActiveIP",
+            "dataType": "int64",
+            "sourceColumn": "IsActiveIP"
+          },
+          {
+            "name": "IsUnique",
+            "dataType": "int64",
+            "sourceColumn": "IsUnique"
+          },
+          {
+            "name": "Soc Die",
+            "dataType": "string",
+            "sourceColumn": "Soc Die"
+          },
+          {
+            "name": "status",
+            "dataType": "string",
+            "sourceColumn": "status"
+          },
+          {
+            "name": "sub_bugcategory",
+            "dataType": "string",
+            "sourceColumn": "sub_bugcategory"
+          },
+          {
+            "name": "TapeinMilestone",
+            "dataType": "string",
+            "sourceColumn": "TapeinMilestone"
+          },
+          {
+            "name": "tenant",
+            "dataType": "string",
+            "sourceColumn": "tenant"
+          },
+          {
+            "name": "ww_submitted_nbr",
+            "dataType": "int64",
+            "sourceColumn": "ww_submitted_nbr"
+          },
+          {
+            "name": "WWSubmittedSeqNbr",
+            "dataType": "int64",
+            "sourceColumn": "WWSubmittedSeqNbr"
+          },
+          {
+            "type": "calculated",
+            "name": "ServerTapeInMilestone",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "var TapeIn = ",
+              "    If(QueryBug[Designation]=\"ICX\", 201822, IF(QueryBug[Designation]=\"SPR\", 201949, -1))--, IF(QueryBug[Designation]=\"GNR\", 202220, -1)))",
+              "",
+              "return switch(true(),",
+              "TapeIn=-1, \"False\",",
+              "TapeIn=Blank(), \"Pre Tapein\",",
+              "QueryBug[ww_submitted_nbr]<=TapeIn, \"Pre Tapein\",",
+              "QueryBug[ww_submitted_nbr]>TapeIn, \"Post Tapein\"",
+              ")",
+              ""
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "Server_Config",
+            "dataType": "boolean",
+            "isDataTypeInferred": true,
+            "expression": "CALCULATE(COUNTROWS(QueryCompleteGuide), FILTER(QueryCompleteGuide, QueryCompleteGuide[Configuration]=EARLIER(QueryBug[Configuration])))>0",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\""
+          },
+          {
+            "type": "calculated",
+            "name": "valid_status",
+            "dataType": "boolean",
+            "isDataTypeInferred": true,
+            "expression": "if(QueryBug[tenant] = \"server\", if(QueryBug[status] in {\"complete\", \"repo_modified\"}, TRUE(), FALSE()), TRUE())",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\""
+          },
+          {
+            "type": "calculated",
+            "name": "universal_TapeInMilestone",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "",
+              "If(QueryBug[ServerTapeInMilestone] <> \"False\", QueryBug[ServerTapeInMilestone], ",
+              "QueryBug[TapeinMilestone]",
+              ")",
+              ""
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "valid_found_bySoC",
+            "dataType": "boolean",
+            "isDataTypeInferred": true,
+            "expression": [
+              "if(",
+              "QueryBug[tenant]=\"server\",",
+              "    If(QueryBug[universal_TapeInMilestone]=\"Pre Tapein\",",
+              "        If(QueryBug[is_found_bySoc] = \"HW PreSiBug Found by SoC\", TRUE(), FALSE()),",
+              "          TRUE()),",
+              "",
+              "    If(QueryBug[universal_TapeInMilestone]=\"Pre Tapein\",",
+              "        If(QueryBug[is_found_bySoc] in {\"HW PostSiBug Found by SoC\", \"HW PreSiBug Found by SoC\", \"SW/FW PostSiBug Found by SoC\"}, TRUE(), FALSE()),",
+              "       TRUE()",
+              "",
+              "))        "
+            ],
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\""
+          },
+          {
+            "type": "calculated",
+            "name": "Designation",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "If(QueryBug[tenant] = \"server\" && QueryBug[DEG_TapeIn_SeqNbr] < 802, LOOKUPVALUE(QueryCompleteGuide[Designation], QueryCompleteGuide[configuration], QueryBug[Configuration]), ",
+              "LOOKUPVALUE(QueryCompleteGuide[Designation], QueryCompleteGuide[SoC Die], QueryBug[SoC Die])",
+              ")"
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "valid_Unique",
+            "dataType": "boolean",
+            "isDataTypeInferred": true,
+            "expression": [
+              "IF(QueryBug[tenant] = \"server\",",
+              "    If(QueryBug[universal_TapeInMilestone] = \"Pre Tapein\",",
+              "        If(QueryBug[IsUnique]=1, TRUE(), FALSE()), TRUE())",
+              "",
+              ", If(QueryBug[IsUnique]=1, TRUE(), FALSE()))"
+            ],
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\""
+          },
+          {
+            "type": "calculated",
+            "name": "valid_Combination",
+            "dataType": "boolean",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "--if past LNL, use new logic",
+              "if(QueryBug[DEG_TapeIn_SeqNbr] >=825, If(QueryBug[Designation]<>BLANK(), TRUE()),",
+              "",
+              "--otherwise, use old logic",
+              "    IF(CALCULATE(COUNTROWS(QueryCompleteGuide), QueryCompleteGuide[UniqueKey] = EARLIER(QueryBug[UniqueKey])) > 0,",
+              "            TRUE(), ",
+              "",
+              "        if(QueryBug[universal_TapeInMilestone] = \"Post Tapein\" && QueryBug[Designation] in {\"ICX\", \"SPR\"},",
+              "                IF(QueryBug[Server_Config]=TRUE(), TRUE())))) ",
+              "            "
+            ],
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\""
+          },
+          {
+            "name": "IsUnique_External",
+            "dataType": "string",
+            "sourceColumn": "IsUnique_External"
+          },
+          {
+            "name": "lineage",
+            "dataType": "string",
+            "sourceColumn": "lineage"
+          },
+          {
+            "name": "lineage_final",
+            "dataType": "string",
+            "sourceColumn": "lineage_final"
+          },
+          {
+            "name": "lineage_from_ClientSOC",
+            "dataType": "string",
+            "sourceColumn": "lineage_from_ClientSOC"
+          },
+          {
+            "name": "Lineage_ID",
+            "dataType": "string",
+            "sourceColumn": "Lineage_ID"
+          },
+          {
+            "name": "Lineage_ID_Unique",
+            "dataType": "string",
+            "sourceColumn": "Lineage_ID_Unique"
+          },
+          {
+            "name": "release",
+            "dataType": "string",
+            "sourceColumn": "release"
+          },
+          {
+            "name": "release_affected",
+            "dataType": "string",
+            "sourceColumn": "release_affected"
+          },
+          {
+            "name": "status_detail",
+            "dataType": "string",
+            "sourceColumn": "status_detail"
+          },
+          {
+            "name": "title",
+            "dataType": "string",
+            "sourceColumn": "title"
+          },
+          {
+            "name": "url",
+            "dataType": "string",
+            "sourceColumn": "url"
+          },
+          {
+            "type": "calculated",
+            "name": "SpeedID",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": "RELATED(SpeedID_mapping[Speed ID])"
+          },
+          {
+            "type": "calculated",
+            "name": "MinTapeInReached",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "IF(RELATED(QueryDesignations[Earliest_Tapein]) < MAX(QueryIntelWW[currentww]), \"Yes\", \"No\")"
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "normalizeFactor",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": [
+              "IF(QueryBug[Designation] = \"ADL\", QueryCompleteGuide[configCountADL],",
+              "IF(QueryBug[Designation] = \"GNR\", QueryCompleteGuide[configCountGNR],",
+              "IF(QueryBug[Designation] = \"ICX\", QueryCompleteGuide[configCountICX],",
+              "IF(QueryBug[Designation] = \"LNL\", QueryCompleteGuide[configCountLNL],",
+              "IF(QueryBug[Designation] = \"MTL\", QueryCompleteGuide[configCountMTL],",
+              "IF(QueryBug[Designation] = \"RPL\", QueryCompleteGuide[configCountRPL],",
+              "IF(QueryBug[Designation] = \"SPR\", QueryCompleteGuide[configCountSPR],",
+              "IF(QueryBug[Designation] = \"SRF\", QueryCompleteGuide[configCountSRF],",
+              "IF(QueryBug[Designation] = \"TGL\", QueryCompleteGuide[configCountTGL],",
+              "BLANK())))))))))"
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"AnalysisServices/ipg_bug intel com;ipg_bug\",",
+                "    Model1 = Source{[Id=\"Model\"]}[Data],",
+                "    Model2 = Model1{[Id=\"Model\"]}[Data],",
+                "    #\"Added Items\" = Cube.Transform(Model2,",
+                "        {",
+                "            {Cube.AddAndExpandDimensionColumn, \"[QueryBug]\", {\"[QueryBug].[bug_category].[bug_category]\", \"[QueryBug].[bugeco.type].[bugeco.type]\", \"[QueryBug].[Configuration].[Configuration]\", \"[QueryBug].[DEG_TapeIn_SeqNbr].[DEG_TapeIn_SeqNbr]\", \"[QueryBug].[env_found].[env_found]\", \"[QueryBug].[id].[id]\", \"[QueryBug].[IPFamily].[IPFamily]\", \"[QueryBug].[is_found_bySoc].[is_found_bySoc]\", \"[QueryBug].[is_PreSiPostSi].[is_PreSiPostSi]\", \"[QueryBug].[IsActiveIP].[IsActiveIP]\", \"[QueryBug].[IsUnique].[IsUnique]\", \"[QueryBug].[IsUnique_External].[IsUnique_External]\", \"[QueryBug].[lineage].[lineage]\", \"[QueryBug].[lineage_final].[lineage_final]\", \"[QueryBug].[lineage_from_ClientSOC].[lineage_from_ClientSOC]\", \"[QueryBug].[Lineage_ID].[Lineage_ID]\", \"[QueryBug].[Lineage_ID_Unique].[Lineage_ID_Unique]\", \"[QueryBug].[release].[release]\", \"[QueryBug].[release_affected].[release_affected]\", \"[QueryBug].[Soc Die].[Soc Die]\", \"[QueryBug].[status].[status]\", \"[QueryBug].[status_detail].[status_detail]\", \"[QueryBug].[sub_bugcategory].[sub_bugcategory]\", \"[QueryBug].[TapeinMilestone].[TapeinMilestone]\", \"[QueryBug].[tenant].[tenant]\", \"[QueryBug].[title].[title]\", \"[QueryBug].[url].[url]\", \"[QueryBug].[ww_submitted_nbr].[ww_submitted_nbr]\", \"[QueryBug].[WWSubmittedSeqNbr].[WWSubmittedSeqNbr]\"}, {\"QueryBug.bug_category\", \"QueryBug.bugeco.type\", \"QueryBug.Configuration\", \"QueryBug.DEG_TapeIn_SeqNbr\", \"QueryBug.env_found\", \"QueryBug.id\", \"QueryBug.IPFamily\", \"QueryBug.is_found_bySoc\", \"QueryBug.is_PreSiPostSi\", \"QueryBug.IsActiveIP\", \"QueryBug.IsUnique\", \"QueryBug.IsUnique_External\", \"QueryBug.lineage\", \"QueryBug.lineage_final\", \"QueryBug.lineage_from_ClientSOC\", \"QueryBug.Lineage_ID\", \"QueryBug.Lineage_ID_Unique\", \"QueryBug.release\", \"QueryBug.release_affected\", \"QueryBug.Soc Die\", \"QueryBug.status\", \"QueryBug.status_detail\", \"QueryBug.sub_bugcategory\", \"QueryBug.TapeinMilestone\", \"QueryBug.tenant\", \"QueryBug.title\", \"QueryBug.url\", \"QueryBug.ww_submitted_nbr\", \"QueryBug.WWSubmittedSeqNbr\"}},",
+                "            {Cube.AddMeasureColumn, \"Bug\", \"[Measures].[Bug]\"}",
+                "        }),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Added Items\",{{\"QueryBug.DEG_TapeIn_SeqNbr\", Int64.Type}, {\"QueryBug.IsActiveIP\", Int64.Type}, {\"QueryBug.IsUnique\", Int64.Type}, {\"QueryBug.ww_submitted_nbr\", Int64.Type}, {\"QueryBug.WWSubmittedSeqNbr\", Int64.Type}}),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"QueryBug.bug_category\", \"bug_category\"}, {\"QueryBug.bugeco.type\", \"bugeco.type\"}, {\"QueryBug.Configuration\", \"Configuration\"}, {\"QueryBug.DEG_TapeIn_SeqNbr\", \"DEG_TapeIn_SeqNbr\"}, {\"QueryBug.env_found\", \"env_found\"}, {\"QueryBug.id\", \"id\"}, {\"QueryBug.IPFamily\", \"IPFamily\"}, {\"QueryBug.is_found_bySoc\", \"is_found_bySoc\"}, {\"QueryBug.is_PreSiPostSi\", \"is_PreSiPostSi\"}, {\"QueryBug.IsActiveIP\", \"IsActiveIP\"}, {\"QueryBug.IsUnique\", \"IsUnique\"}, {\"QueryBug.Soc Die\", \"Soc Die\"}, {\"QueryBug.status\", \"status\"}, {\"QueryBug.sub_bugcategory\", \"sub_bugcategory\"}, {\"QueryBug.TapeinMilestone\", \"TapeinMilestone\"}, {\"QueryBug.tenant\", \"tenant\"}, {\"QueryBug.ww_submitted_nbr\", \"ww_submitted_nbr\"}, {\"QueryBug.WWSubmittedSeqNbr\", \"WWSubmittedSeqNbr\"}, {\"QueryBug.url\", \"url\"}, {\"QueryBug.title\", \"title\"}, {\"QueryBug.status_detail\", \"status_detail\"}, {\"QueryBug.release_affected\", \"release_affected\"}, {\"QueryBug.release\", \"release\"}, {\"QueryBug.Lineage_ID_Unique\", \"Lineage_ID_Unique\"}, {\"QueryBug.Lineage_ID\", \"Lineage_ID\"}, {\"QueryBug.lineage_from_ClientSOC\", \"lineage_from_ClientSOC\"}, {\"QueryBug.lineage_final\", \"lineage_final\"}, {\"QueryBug.lineage\", \"lineage\"}, {\"QueryBug.IsUnique_External\", \"IsUnique_External\"}})",
+                "in",
+                "    #\"Renamed Columns\""
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Pre_Ti_Bugs",
+            "expression": [
+              " CALCULATE(COUNT(QueryBug[id]),",
+              "QueryBug[bugeco.type] = \"bug\",",
+              "QueryBug[valid_Unique]=TRUE(),",
+              "QueryBug[IsActiveIP]=1,",
+              "QueryBug[sub_bugcategory] in {\"Functional\", \"Physical\"},",
+              "QueryBug[valid_status] = TRUE(),",
+              "QueryBug[valid_Combination] = TRUE(),",
+              "QueryBug[universal_TapeInMilestone] = \"Pre Tapein\",",
+              "QueryBug[valid_found_bySoC] = TRUE())",
+              ""
+            ]
+          },
+          {
+            "name": "Post_Ti_All_Si_Bugs",
+            "expression": [
+              " ",
+              "SWITCH(SELECTEDVALUE(QueryBug[MinTapeInReached]), \"No\", \"N/A\", ",
+              "[Post_Ti_All_Si_Bugs_Numeric]",
+              ")"
+            ],
+            "formatString": "0"
+          },
+          {
+            "name": "Post_Ti_Post_Si_Bugs",
+            "expression": [
+              " ",
+              "SWITCH(SELECTEDVALUE(QueryBug[MinTapeInReached]), \"No\", \"N/A\", ",
+              "[Post_Ti_Post_Si_Bugs_Numeric]",
+              ")"
+            ],
+            "formatString": "0"
+          },
+          {
+            "name": "Post_Ti_Pre_Si_Bugs",
+            "expression": [
+              " ",
+              "SWITCH(SELECTEDVALUE(QueryBug[MinTapeInReached]), \"No\", \"N/A\", ",
+              "[Post_Ti_Pre_Si_Bugs_Numeric]",
+              ")"
+            ],
+            "formatString": "0"
+          },
+          {
+            "name": "Post_Ti_All_Si_Bugs_Numeric",
+            "expression": [
+              " ",
+              "CALCULATE(COUNT(QueryBug[id]),",
+              "QueryBug[bugeco.type] = \"bug\",",
+              "QueryBug[valid_Unique]=TRUE(),",
+              "QueryBug[IsActiveIP]=1,",
+              "QueryBug[sub_bugcategory] in {\"Functional\", \"Physical\"},",
+              "QueryBug[valid_status] = TRUE(),",
+              "QueryBug[valid_Combination] = TRUE(),",
+              "QueryBug[universal_TapeInMilestone] in {\"Post Tapein\"},",
+              "QueryBug[valid_found_bySoC] = TRUE())",
+              ""
+            ]
+          },
+          {
+            "name": "Post_Ti_Post_Si_Bugs_Numeric",
+            "expression": [
+              " ",
+              "CALCULATE(COUNT(QueryBug[id]),",
+              "QueryBug[bugeco.type] = \"bug\",",
+              "QueryBug[valid_Unique]=TRUE(),",
+              "QueryBug[IsActiveIP]=1,",
+              "QueryBug[sub_bugcategory] in {\"Functional\", \"Physical\"},",
+              "QueryBug[valid_status] = TRUE(),",
+              "QueryBug[valid_Combination] = TRUE(),",
+              "QueryBug[universal_TapeInMilestone] in {\"Post Tapein\"},",
+              "QueryBug[is_found_bySoc] in {\"HW PostSiBug Found by SoC\",\"HW PostSiBug Found by IP\", \"PostSiBug NoSoC\"})"
+            ]
+          },
+          {
+            "name": "Post_Ti_Pre_Si_Bugs_Numeric",
+            "expression": [
+              " ",
+              "CALCULATE(COUNT(QueryBug[id]),",
+              "QueryBug[bugeco.type] = \"bug\",",
+              "QueryBug[valid_Unique]=TRUE(),",
+              "QueryBug[IsActiveIP]=1,",
+              "QueryBug[sub_bugcategory] in {\"Functional\", \"Physical\"},",
+              "QueryBug[valid_status] = TRUE(),",
+              "QueryBug[valid_Combination] = TRUE(),",
+              "QueryBug[universal_TapeInMilestone] in {\"Post Tapein\"},",
+              "QueryBug[is_found_bySoc] in {\"HW PreSiBug Found by SoC\", \"HW PreSiBug Found by IP\", \"PreSiBug NoSoC\"})"
+            ]
+          },
+          {
+            "name": "normalizeTotalMeasure",
+            "expression": " MAXX(DISTINCT(QueryBug[Designation]), MAX(QueryBug[normalizeFactor]))"
+          },
+          {
+            "name": "normalizeTotal",
+            "expression": " SUMX(DISTINCT(QueryBug[Designation]), QueryBug[normalizeTotalMeasure])"
+          },
+          {
+            "name": "Pre_Ti_Bugs_Normalized",
+            "expression": " QueryBug[Pre_Ti_Bugs] / QueryBug[normalizeTotal]"
+          },
+          {
+            "name": "Post_Ti_All_Si_Bugs_Normalized",
+            "expression": " QueryBug[Post_Ti_All_Si_Bugs_Numeric] / QueryBug[normalizeTotal]"
+          },
+          {
+            "name": "Post_Ti_Pre_Si_Bugs_Normalized",
+            "expression": " QueryBug[Post_Ti_Pre_Si_Bugs_Numeric] / QueryBug[normalizeTotal]"
+          },
+          {
+            "name": "Post_Ti_Post_Si_Bugs_Normalized",
+            "expression": " QueryBug[Post_Ti_Post_Si_Bugs_Numeric] / QueryBug[normalizeTotal]"
+          }
+        ]
+      },
+      {
+        "name": "QueryFeature",
+        "columns": [
+          {
+            "name": "Configuration",
+            "dataType": "string",
+            "sourceColumn": "Configuration"
+          },
+          {
+            "name": "DEG_POPL3_SeqNbr",
+            "dataType": "int64",
+            "sourceColumn": "DEG_POPL3_SeqNbr"
+          },
+          {
+            "name": "FeatureLiveData",
+            "dataType": "int64",
+            "sourceColumn": "FeatureLiveData"
+          },
+          {
+            "name": "id",
+            "dataType": "string",
+            "sourceColumn": "id"
+          },
+          {
+            "name": "IP3-IE Miletone",
+            "dataType": "string",
+            "sourceColumn": "IP3-IE Miletone"
+          },
+          {
+            "name": "IPFamily",
+            "dataType": "string",
+            "sourceColumn": "IPFamily"
+          },
+          {
+            "name": "POPL3-EC Milestone",
+            "dataType": "string",
+            "sourceColumn": "POPL3-EC Milestone"
+          },
+          {
+            "name": "SoC Die",
+            "dataType": "string",
+            "sourceColumn": "SoC Die"
+          },
+          {
+            "name": "ww_submitted_date",
+            "dataType": "int64",
+            "sourceColumn": "ww_submitted_date"
+          },
+          {
+            "name": "WWSubmittedSeqNbr",
+            "dataType": "int64",
+            "sourceColumn": "WWSubmittedSeqNbr"
+          },
+          {
+            "type": "calculated",
+            "name": "UniqueKey",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": "QueryFeature[SoC Die]&\"_\"&QueryFeature[Configuration]"
+          },
+          {
+            "type": "calculated",
+            "name": "FeatureMilestone",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "",
+              "Switch(QueryFeature[POPL3-EC Milestone],",
+              "\t\t\"No POPL3-EC\", \"No Milestone\",",
+              "        \"Post POPL3-EC\", \"Post Milestone\",",
+              "        \"Pre POPL3-EC\", \"Pre Milestone\",",
+              "        \"POPL3 parsing error\")",
+              "",
+              ""
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "Designation",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "IF((QueryFeature[DEG_POPL3_SeqNbr]>=729||",
+              "    QueryFeature[SoC Die]=\"Sapphire Rapids SP-XRC Die\"||",
+              "    QueryFeature[SoC Die]=\"Ice Lake SP XCC Die\"    ",
+              "), RELATED(QueryBOM[Program]),",
+              "",
+              "LOOKUPVALUE(QueryCompleteGuide[Designation], QueryCompleteGuide[UniqueKey], QueryFeature[UniqueKey])",
+              ")"
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "MinPOPL3 Reached",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              "",
+              "var CurrWW = MAX(QueryIntelWW[currentww])",
+              "var CurrWWSeqNbr = LOOKUPVALUE(QueryIntelWW[WWSeqNbr], QueryIntelWW[Intel Year-Work Week], CurrWW)",
+              "",
+              "return IF(CurrWWSeqNbr < SELECTEDVALUE(QueryFeature[DEG_POPL3_SeqNbr]), \"No\", \"Yes\")"
+            ]
+          },
+          {
+            "name": "status",
+            "dataType": "string",
+            "sourceColumn": "status"
+          },
+          {
+            "name": "tenant",
+            "dataType": "string",
+            "sourceColumn": "tenant"
+          },
+          {
+            "type": "calculated",
+            "name": "valid_status",
+            "dataType": "boolean",
+            "isDataTypeInferred": true,
+            "expression": "IF((QueryFeature[DEG_POPL3_SeqNbr]>=729 ||QueryFeature[Designation]=\"SPR\"||QueryFeature[Designation]=\"ICX\"), If(QueryFeature[status] <> \"Rejected\" && QueryFeature[status] <> \"Abandoned\", TRUE(), FALSE()), TRUE())",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\""
+          },
+          {
+            "type": "calculated",
+            "name": "SpeedID",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": "related(SpeedID_mapping[Speed ID])"
+          },
+          {
+            "type": "calculated",
+            "name": "AtlasFeatureMilestone",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": [
+              " ",
+              "var AtlasDate = RELATED('QueryPOPL3-EC'[TrendYYYYWW])",
+              "",
+              "return ",
+              "if(AtlasDate = BLANK(), \"Invalid\",",
+              "if(QueryFeature[ww_submitted_date] < AtlasDate, \"Pre Milestone\",",
+              "if(QueryFeature[ww_submitted_date] >= AtlasDate, \"Post Milestone\",",
+              "\"Invalid\"",
+              ")))"
+            ]
+          },
+          {
+            "type": "calculated",
+            "name": "normalizeFactor",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": [
+              "IF(QueryFeature[Designation] = \"ADL\", QueryCompleteGuide[configCountADL],",
+              "IF(QueryFeature[Designation] = \"GNR\", QueryCompleteGuide[configCountGNR],",
+              "IF(QueryFeature[Designation] = \"ICX\", QueryCompleteGuide[configCountICX],",
+              "IF(QueryFeature[Designation] = \"LNL\", QueryCompleteGuide[configCountLNL],",
+              "IF(QueryFeature[Designation] = \"MTL\", QueryCompleteGuide[configCountMTL],",
+              "IF(QueryFeature[Designation] = \"RPL\", QueryCompleteGuide[configCountRPL],",
+              "IF(QueryFeature[Designation] = \"SPR\", QueryCompleteGuide[configCountSPR],",
+              "IF(QueryFeature[Designation] = \"SRF\", QueryCompleteGuide[configCountSRF],",
+              "IF(QueryFeature[Designation] = \"TGL\", QueryCompleteGuide[configCountTGL],",
+              "BLANK())))))))))"
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"AnalysisServices/ipg_feature intel com;ipg_feature\",",
+                "    Model1 = Source{[Id=\"Model\"]}[Data],",
+                "    Model2 = Model1{[Id=\"Model\"]}[Data],",
+                "    #\"Added Items\" = Cube.Transform(Model2,",
+                "        {",
+                "            {Cube.AddAndExpandDimensionColumn, \"[QueryFeature]\", {\"[QueryFeature].[Configuration].[Configuration]\", \"[QueryFeature].[DEG_POPL3_SeqNbr].[DEG_POPL3_SeqNbr]\", \"[QueryFeature].[FeatureLiveData].[FeatureLiveData]\", \"[QueryFeature].[id].[id]\", \"[QueryFeature].[IP3-IE Miletone].[IP3-IE Miletone]\", \"[QueryFeature].[IPFamily].[IPFamily]\", \"[QueryFeature].[POPL3-EC Milestone].[POPL3-EC Milestone]\", \"[QueryFeature].[SoC Die].[SoC Die]\", \"[QueryFeature].[status].[status]\", \"[QueryFeature].[tenant].[tenant]\", \"[QueryFeature].[ww_submitted_date].[ww_submitted_date]\", \"[QueryFeature].[WWSubmittedSeqNbr].[WWSubmittedSeqNbr]\"}, {\"QueryFeature.Configuration\", \"QueryFeature.DEG_POPL3_SeqNbr\", \"QueryFeature.FeatureLiveData\", \"QueryFeature.id\", \"QueryFeature.IP3-IE Miletone\", \"QueryFeature.IPFamily\", \"QueryFeature.POPL3-EC Milestone\", \"QueryFeature.SoC Die\", \"QueryFeature.status\", \"QueryFeature.tenant\", \"QueryFeature.ww_submitted_date\", \"QueryFeature.WWSubmittedSeqNbr\"}}",
+                "        }),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Added Items\",{{\"QueryFeature.DEG_POPL3_SeqNbr\", Int64.Type}, {\"QueryFeature.FeatureLiveData\", Int64.Type}, {\"QueryFeature.ww_submitted_date\", Int64.Type}, {\"QueryFeature.WWSubmittedSeqNbr\", Int64.Type}}),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"QueryFeature.Configuration\", \"Configuration\"}, {\"QueryFeature.DEG_POPL3_SeqNbr\", \"DEG_POPL3_SeqNbr\"}, {\"QueryFeature.FeatureLiveData\", \"FeatureLiveData\"}, {\"QueryFeature.id\", \"id\"}, {\"QueryFeature.IP3-IE Miletone\", \"IP3-IE Miletone\"}, {\"QueryFeature.IPFamily\", \"IPFamily\"}, {\"QueryFeature.POPL3-EC Milestone\", \"POPL3-EC Milestone\"}, {\"QueryFeature.SoC Die\", \"SoC Die\"}, {\"QueryFeature.ww_submitted_date\", \"ww_submitted_date\"}, {\"QueryFeature.WWSubmittedSeqNbr\", \"WWSubmittedSeqNbr\"}, {\"QueryFeature.status\", \"status\"}, {\"QueryFeature.tenant\", \"tenant\"}})",
+                "in",
+                "    #\"Renamed Columns\""
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Post_IPEC_Features",
+            "expression": [
+              " ",
+              "SWITCH(SELECTEDVALUE(QueryFeature[MinPOPL3 Reached]), \"No\", \"N/A\",",
+              "[Post_IPEC_Features_Numeric]",
+              ")",
+              ""
+            ],
+            "formatString": "0"
+          },
+          {
+            "name": "Post_IPEC_Features_Numeric",
+            "expression": [
+              " ",
+              "CALCULATE(DISTINCTCOUNT(QueryFeature[id]), ",
+              "QueryFeature[FeatureMilestone]=\"Post Milestone\",",
+              "QueryFeature[Designation]<>BLANK(),",
+              "QueryFeature[FeatureLiveData]=1,",
+              "QueryFeature[valid_status]=TRUE()",
+              ")",
+              ""
+            ]
+          },
+          {
+            "name": "ATLAS_Post_IPEC_Features_Numeric",
+            "expression": [
+              " ",
+              "CALCULATE(DISTINCTCOUNT(QueryFeature[id]), ",
+              "QueryFeature[AtlasFeatureMilestone]=\"Post Milestone\",",
+              "QueryFeature[Designation]<>BLANK(),",
+              "QueryFeature[FeatureLiveData]=1,",
+              "QueryFeature[valid_status]=TRUE()",
+              ")",
+              ""
+            ]
+          },
+          {
+            "name": "normalizeTotalMeasureFeature",
+            "expression": " MAXX(DISTINCT(QueryFeature[Designation]), MAX(QueryFeature[normalizeFactor]))"
+          },
+          {
+            "name": "normalizeTotalFeature",
+            "expression": " SUMX(DISTINCT(QueryFeature[Designation]), QueryFeature[normalizeTotalMeasureFeature])"
+          },
+          {
+            "name": "Post_IPEC_Features_Normalized",
+            "expression": "QueryFeature[Post_IPEC_Features_Numeric]/QueryFeature[normalizeTotalFeature]"
+          }
+        ]
+      },
+      {
+        "name": "QueryLastRefresh",
+        "columns": [
+          {
+            "name": "lastRefresh",
+            "dataType": "dateTime",
+            "sourceColumn": "lastRefresh",
+            "formatString": "General Date",
+            "sourceProviderType": "Date"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "QueryLastRefresh",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "select distinct",
+                "getdate() as lastRefresh",
+                "from [cig_devsuborg_cached]"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct",
+                  "getdate() as lastRefresh",
+                  "from [cig_devsuborg_cached]</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "select distinct",
+              "getdate() as lastRefresh",
+              "from [cig_devsuborg_cached]"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "QueryLastRefresh"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct",
+              "getdate() as lastRefresh",
+              "from [cig_devsuborg_cached]</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "QueryIPFamily",
+        "columns": [
+          {
+            "name": "IPFamily",
+            "dataType": "string",
+            "sourceColumn": "IPdata.IPFamily"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"AnalysisServices/ipg_golden_cube intel com;ipg_golden_cube\",",
+                "    Model1 = Source{[Id=\"Model\"]}[Data],",
+                "    Model2 = Model1{[Id=\"Model\"]}[Data],",
+                "    #\"Added Items\" = Cube.Transform(Model2,",
+                "        {",
+                "            {Cube.AddAndExpandDimensionColumn, \"[IPdata]\", {\"[IPdata].[IPFamily].[IPFamily]\"}, {\"IPdata.IPFamily\"}}",
+                "        }),",
+                "    #\"Removed Blank Rows\" = Table.SelectRows(#\"Added Items\", each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {\"\", null})))",
+                "in",
+                "    #\"Removed Blank Rows\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "QueryCompleteGuide",
+        "columns": [
+          {
+            "name": "SoC Die",
+            "dataType": "string",
+            "sourceColumn": "SoC Die",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "Designation",
+            "dataType": "string",
+            "sourceColumn": "Designation",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "Client_Server",
+            "dataType": "string",
+            "sourceColumn": "Client_Server",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "Tapein Date",
+            "dataType": "string",
+            "sourceColumn": "Tapein Date",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "configuration",
+            "dataType": "string",
+            "sourceColumn": "configuration",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "UniqueKey",
+            "dataType": "string",
+            "sourceColumn": "UniqueKey",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "type": "calculated",
+            "name": "ConfigCount",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": [
+              "var curr_key = QueryCompleteGuide[Designation]",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "DEG_Guide_new",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "select",
+                "soc.[SoC Die],",
+                "soc.Designation,",
+                "soc.Client_Server,",
+                "soc.[Tapein Date],",
+                "config.configuration,",
+                "(soc.[SoC Die] +'_' +config.configuration ) as [UniqueKey]",
+                "from (select * ",
+                "from DEG_Transformation_Guide_SoC) soc",
+                "join",
+                "(select * from DEG_Transformation_Guide_Configuration) config",
+                "",
+                "on soc.designation = config.designation"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select",
+                  "soc.[SoC Die],",
+                  "soc.Designation,",
+                  "soc.Client_Server,",
+                  "soc.[Tapein Date],",
+                  "config.configuration,",
+                  "(soc.[SoC Die] +'_' +config.configuration ) as [UniqueKey]",
+                  "from (select * ",
+                  "from DEG_Transformation_Guide_SoC) soc",
+                  "join",
+                  "(select * from DEG_Transformation_Guide_Configuration) config",
+                  "",
+                  "on soc.designation = config.designation</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "measures": [
+          {
+            "name": "totalConfigCount",
+            "expression": " DISTINCTCOUNT(QueryCompleteGuide[configuration])"
+          },
+          {
+            "name": "configCountADL",
+            "expression": [
+              "",
+              "var curr_key = \"ADL\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountGNR",
+            "expression": [
+              "",
+              "var curr_key = \"GNR\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountICX",
+            "expression": [
+              "",
+              "var curr_key = \"ICX\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountLNL",
+            "expression": [
+              "",
+              "var curr_key = \"LNL\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountMTL",
+            "expression": [
+              "",
+              "var curr_key = \"MTL\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountRPL",
+            "expression": [
+              "",
+              "var curr_key = \"RPL\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountSPR",
+            "expression": [
+              "",
+              "var curr_key = \"SPR\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountSRF",
+            "expression": [
+              "",
+              "var curr_key = \"SRF\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          },
+          {
+            "name": "configCountTGL",
+            "expression": [
+              "",
+              "var curr_key = \"TGL\"",
+              "var config_count = CALCULATE(DISTINCTCOUNT(QueryCompleteGuide[Configuration]), ALL(QueryCompleteGuide), QueryCompleteGuide[Designation] = curr_key)",
+              "return config_count"
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "select",
+              "soc.[SoC Die],",
+              "soc.Designation,",
+              "soc.Client_Server,",
+              "soc.[Tapein Date],",
+              "config.configuration,",
+              "(soc.[SoC Die] +'_' +config.configuration ) as [UniqueKey]",
+              "from (select * ",
+              "from DEG_Transformation_Guide_SoC) soc",
+              "join",
+              "(select * from DEG_Transformation_Guide_Configuration) config",
+              "",
+              "on soc.designation = config.designation"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "DEG_Guide_new"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select",
+              "soc.[SoC Die],",
+              "soc.Designation,",
+              "soc.Client_Server,",
+              "soc.[Tapein Date],",
+              "config.configuration,",
+              "(soc.[SoC Die] +'_' +config.configuration ) as [UniqueKey]",
+              "from (select * ",
+              "from DEG_Transformation_Guide_SoC) soc",
+              "join",
+              "(select * from DEG_Transformation_Guide_Configuration) config",
+              "",
+              "on soc.designation = config.designation</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "QueryDesignations",
+        "columns": [
+          {
+            "name": "Designation",
+            "dataType": "string",
+            "sourceColumn": "Designation",
+            "sortByColumn": "Earliest_Tapein",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "Client_Server",
+            "dataType": "string",
+            "sourceColumn": "Client_Server"
+          },
+          {
+            "name": "Earliest_Tapein",
+            "dataType": "int64",
+            "sourceColumn": "Earliest_Tapein"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Designation_Map",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "select distinct",
+                "Designation,",
+                "Client_Server,",
+                "isnull(MIN(Cast([Tapein Date] as int)), 209999) as [Earliest_Tapein]",
+                "from DEG_Transformation_Guide_SoC",
+                "Group by",
+                "Designation,",
+                "Client_Server"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct",
+                  "Designation,",
+                  "Client_Server,",
+                  "isnull(MIN(Cast([Tapein Date] as int)), 209999) as [Earliest_Tapein]",
+                  "from DEG_Transformation_Guide_SoC",
+                  "Group by",
+                  "Designation,",
+                  "Client_Server</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "select distinct",
+              "Designation,",
+              "Client_Server,",
+              "isnull(MIN(Cast([Tapein Date] as int)), 209999) as [Earliest_Tapein]",
+              "from DEG_Transformation_Guide_SoC",
+              "Group by",
+              "Designation,",
+              "Client_Server"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "Designation_Map"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct",
+              "Designation,",
+              "Client_Server,",
+              "isnull(MIN(Cast([Tapein Date] as int)), 209999) as [Earliest_Tapein]",
+              "from DEG_Transformation_Guide_SoC",
+              "Group by",
+              "Designation,",
+              "Client_Server</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "SoC_Die",
+        "columns": [
+          {
+            "type": "calculatedTableColumn",
+            "name": "SoC_Die",
+            "dataType": "string",
+            "isNameInferred": false,
+            "isDataTypeInferred": true,
+            "sourceColumn": "[SoC Die]"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "CalculatedTable 1",
+            "source": {
+              "type": "calculated",
+              "expression": [
+                "",
+                "FILTER(DISTINCT(",
+                "UNION(",
+                "    SELECTCOLUMNS(QueryBug, \"SoC Die\", QueryBug[Soc Die]),",
+                "    SELECTCOLUMNS(QueryFeature, \"SoC Die\", QueryFeature[Soc Die])",
+                ")), [SoC Die]<>\"\" && [SoC Die]<>BLANK())",
+                "",
+                "",
+                "",
+                ""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "SpeedID_mapping",
+        "columns": [
+          {
+            "name": "Speed ID",
+            "dataType": "int64",
+            "sourceColumn": "Speed ID"
+          },
+          {
+            "name": "project",
+            "dataType": "string",
+            "sourceColumn": "project",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "type": "calculated",
+            "name": "test",
+            "dataType": "int64",
+            "isDataTypeInferred": true
+          }
+        ],
+        "partitions": [
+          {
+            "name": "SpeedID_mapping",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "select distinct",
+                " project, max([Speed ID]) as [Speed ID] from [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                "group by project"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct",
+                  " project, max([Speed ID]) as [Speed ID] from [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                  "group by project</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "select distinct",
+              " project, max([Speed ID]) as [Speed ID] from [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "group by project"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "SpeedID_mapping"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct",
+              " project, max([Speed ID]) as [Speed ID] from [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "group by project</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "QueryIntelWW",
+        "columns": [
+          {
+            "name": "currentww",
+            "dataType": "int64",
+            "sourceColumn": "currentww"
+          },
+          {
+            "type": "calculated",
+            "name": "WWSeqNbr",
+            "dataType": "int64",
+            "isDataTypeInferred": true,
+            "expression": "CALCULATE(COUNTROWS(QueryIntelWW), QueryIntelWW[Intel Year-Work Week]<=EARLIER(QueryIntelWW[Intel Year-Work Week]))"
+          },
+          {
+            "name": "Intel Year-Work Week",
+            "dataType": "int64",
+            "sourceColumn": "Intel Year-Work Week"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "CalendarDate",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "select distinct [Intel Year-Work Week], currentww from v_time_day_ipg_cached",
+                "order by [Intel Year-Work Week] asc"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct [Intel Year-Work Week], currentww from v_time_day_ipg_cached",
+                  "order by [Intel Year-Work Week] asc</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "select distinct [Intel Year-Work Week], currentww from v_time_day_ipg_cached",
+              "order by [Intel Year-Work Week] asc"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "CalendarDate"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select distinct [Intel Year-Work Week], currentww from v_time_day_ipg_cached",
+              "order by [Intel Year-Work Week] asc</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "QueryBOM",
+        "columns": [
+          {
+            "name": "SoC Die",
+            "dataType": "string",
+            "sourceColumn": "SoC Die",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "Program",
+            "dataType": "string",
+            "sourceColumn": "Program",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "type": "calculated",
+            "name": "TapeIn Date",
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "expression": "LOOKUPVALUE(QueryCompleteGuide[Tapein Date], QueryCompleteGuide[SoC Die], QueryBOM[SoC Die])"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "QueryBOM",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "select",
+                "distinct [DieName] as [SoC Die] --die name renamed to SoC Die",
+                ",soc.[dyn_lookup.value] as [Program] --SoC Customer renamed to Program",
+                "from [ipg_soc_related_ips_and_milestones] as BOM",
+                "left join [ES.ip_leadership.dyn_lookup] as soc on soc.[ip_leadership.dyn_lookup.product] = BOM.[DieName]",
+                "where 1=1",
+                "and BOM.[Configuration] is not null and BOM.[Configuration] <> ''",
+                "and [Program] is not null and [Program] <> ''",
+                "and [Program] in ",
+                "\t(Select Distinct designation from DEG_Transformation_Guide_SoC)",
+                "and [SoC Die] <> 'Granite Branch'",
+                "UNION",
+                "select 'Lunar Lake Base-M442 Die' as [SoC Die], 'LNL' as [Program]",
+                "UNION",
+                "select 'Sapphire Rapids SP-XRC Die' as [SoC Die], 'SPR' as [Program]",
+                "UNION",
+                "select 'Ice Lake SP XCC Die' as [SoC Die], 'ICX' as [Program]"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select",
+                  "distinct [DieName] as [SoC Die] --die name renamed to SoC Die",
+                  ",soc.[dyn_lookup.value] as [Program] --SoC Customer renamed to Program",
+                  "from [ipg_soc_related_ips_and_milestones] as BOM",
+                  "left join [ES.ip_leadership.dyn_lookup] as soc on soc.[ip_leadership.dyn_lookup.product] = BOM.[DieName]",
+                  "where 1=1",
+                  "and BOM.[Configuration] is not null and BOM.[Configuration] <> ''",
+                  "and [Program] is not null and [Program] <> ''",
+                  "and [Program] in ",
+                  "\t(Select Distinct designation from DEG_Transformation_Guide_SoC)",
+                  "and [SoC Die] <> 'Granite Branch'",
+                  "UNION",
+                  "select 'Lunar Lake Base-M442 Die' as [SoC Die], 'LNL' as [Program]",
+                  "UNION",
+                  "select 'Sapphire Rapids SP-XRC Die' as [SoC Die], 'SPR' as [Program]",
+                  "UNION",
+                  "select 'Ice Lake SP XCC Die' as [SoC Die], 'ICX' as [Program]</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "select",
+              "distinct [DieName] as [SoC Die] --die name renamed to SoC Die",
+              ",soc.[dyn_lookup.value] as [Program] --SoC Customer renamed to Program",
+              "from [ipg_soc_related_ips_and_milestones] as BOM",
+              "left join [ES.ip_leadership.dyn_lookup] as soc on soc.[ip_leadership.dyn_lookup.product] = BOM.[DieName]",
+              "where 1=1",
+              "and BOM.[Configuration] is not null and BOM.[Configuration] <> ''",
+              "and [Program] is not null and [Program] <> ''",
+              "and [Program] in ",
+              "\t(Select Distinct designation from DEG_Transformation_Guide_SoC)",
+              "and [SoC Die] <> 'Granite Branch'",
+              "UNION",
+              "select 'Lunar Lake Base-M442 Die' as [SoC Die], 'LNL' as [Program]",
+              "UNION",
+              "select 'Sapphire Rapids SP-XRC Die' as [SoC Die], 'SPR' as [Program]",
+              "UNION",
+              "select 'Ice Lake SP XCC Die' as [SoC Die], 'ICX' as [Program]"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "QueryBOM"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>select",
+              "distinct [DieName] as [SoC Die] --die name renamed to SoC Die",
+              ",soc.[dyn_lookup.value] as [Program] --SoC Customer renamed to Program",
+              "from [ipg_soc_related_ips_and_milestones] as BOM",
+              "left join [ES.ip_leadership.dyn_lookup] as soc on soc.[ip_leadership.dyn_lookup.product] = BOM.[DieName]",
+              "where 1=1",
+              "and BOM.[Configuration] is not null and BOM.[Configuration] <> ''",
+              "and [Program] is not null and [Program] <> ''",
+              "and [Program] in ",
+              "\t(Select Distinct designation from DEG_Transformation_Guide_SoC)",
+              "and [SoC Die] <> 'Granite Branch'",
+              "UNION",
+              "select 'Lunar Lake Base-M442 Die' as [SoC Die], 'LNL' as [Program]",
+              "UNION",
+              "select 'Sapphire Rapids SP-XRC Die' as [SoC Die], 'SPR' as [Program]",
+              "UNION",
+              "select 'Ice Lake SP XCC Die' as [SoC Die], 'ICX' as [Program]</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "QueryPOPL3-EC",
+        "columns": [
+          {
+            "name": "project",
+            "dataType": "string",
+            "sourceColumn": "project",
+            "sourceProviderType": "VarChar"
+          },
+          {
+            "name": "TrendYYYYWW",
+            "dataType": "int64",
+            "sourceColumn": "TrendYYYYWW",
+            "sourceProviderType": "Integer"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "QueryPOPL3-EC",
+            "dataView": "full",
+            "source": {
+              "type": "query",
+              "query": [
+                "SELECT",
+                "main.project",
+                ",isnull(POPL3Date,ECDate) AS [TrendYYYYWW]",
+                "FROM",
+                "(",
+                "SELECT distinct project",
+                "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                "WHERE 1=1",
+                "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+                "AND trend is not null",
+                "AND trend <> ''",
+                "--AND project like '%die'",
+                ")main",
+                "",
+                " ",
+                "",
+                "LEFT JOIN (",
+                "",
+                " ",
+                "",
+                "SELECT",
+                "project",
+                ",MAX(datepart(ww,trend)) AS [POPL3Date]",
+                "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                "WHERE 1=1",
+                "AND milestone = 'POPL3'",
+                "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+                "AND trend is not null",
+                "AND trend <> ''",
+                "--AND project like '%die'",
+                "GROUP BY project",
+                ")POPL3Date",
+                "",
+                " ",
+                "",
+                "ON main.project = POPL3Date.project",
+                "",
+                " ",
+                "",
+                "LEFT JOIN (",
+                "SELECT",
+                "project",
+                ",MAX(datepart(ww,trend)) AS [ECDate]",
+                "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                "WHERE 1=1",
+                "AND milestone = 'EC'",
+                "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+                "AND trend is not null",
+                "AND trend <> ''",
+                "--AND project like '%die'",
+                "GROUP BY project",
+                ") ECdrop",
+                "",
+                " ",
+                "",
+                "ON main.project = ECdrop.project",
+                "WHERE [TrendYYYYWW] is not null",
+                "AND [TrendYYYYWW] <> ''"
+              ],
+              "dataSource": "Custom"
+            },
+            "annotations": [
+              {
+                "name": "QueryEditorSerialization",
+                "value": [
+                  "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>SELECT",
+                  "main.project",
+                  ",isnull(POPL3Date,ECDate) AS [TrendYYYYWW]",
+                  "FROM",
+                  "(",
+                  "SELECT distinct project",
+                  "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                  "WHERE 1=1",
+                  "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+                  "AND trend is not null",
+                  "AND trend <> ''",
+                  "--AND project like '%die'",
+                  ")main",
+                  "",
+                  " ",
+                  "",
+                  "LEFT JOIN (",
+                  "",
+                  " ",
+                  "",
+                  "SELECT",
+                  "project",
+                  ",MAX(datepart(ww,trend)) AS [POPL3Date]",
+                  "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                  "WHERE 1=1",
+                  "AND milestone = 'POPL3'",
+                  "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+                  "AND trend is not null",
+                  "AND trend <> ''",
+                  "--AND project like '%die'",
+                  "GROUP BY project",
+                  ")POPL3Date",
+                  "",
+                  " ",
+                  "",
+                  "ON main.project = POPL3Date.project",
+                  "",
+                  " ",
+                  "",
+                  "LEFT JOIN (",
+                  "SELECT",
+                  "project",
+                  ",MAX(datepart(ww,trend)) AS [ECDate]",
+                  "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+                  "WHERE 1=1",
+                  "AND milestone = 'EC'",
+                  "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+                  "AND trend is not null",
+                  "AND trend <> ''",
+                  "--AND project like '%die'",
+                  "GROUP BY project",
+                  ") ECdrop",
+                  "",
+                  " ",
+                  "",
+                  "ON main.project = ECdrop.project",
+                  "WHERE [TrendYYYYWW] is not null",
+                  "AND [TrendYYYYWW] <> ''</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+                ]
+              }
+            ]
+          }
+        ],
+        "annotations": [
+          {
+            "name": "_TM_ExtProp_QueryDefinition",
+            "value": [
+              "SELECT",
+              "main.project",
+              ",isnull(POPL3Date,ECDate) AS [TrendYYYYWW]",
+              "FROM",
+              "(",
+              "SELECT distinct project",
+              "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "WHERE 1=1",
+              "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+              "AND trend is not null",
+              "AND trend <> ''",
+              "--AND project like '%die'",
+              ")main",
+              "",
+              " ",
+              "",
+              "LEFT JOIN (",
+              "",
+              " ",
+              "",
+              "SELECT",
+              "project",
+              ",MAX(datepart(ww,trend)) AS [POPL3Date]",
+              "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "WHERE 1=1",
+              "AND milestone = 'POPL3'",
+              "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+              "AND trend is not null",
+              "AND trend <> ''",
+              "--AND project like '%die'",
+              "GROUP BY project",
+              ")POPL3Date",
+              "",
+              " ",
+              "",
+              "ON main.project = POPL3Date.project",
+              "",
+              " ",
+              "",
+              "LEFT JOIN (",
+              "SELECT",
+              "project",
+              ",MAX(datepart(ww,trend)) AS [ECDate]",
+              "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "WHERE 1=1",
+              "AND milestone = 'EC'",
+              "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+              "AND trend is not null",
+              "AND trend <> ''",
+              "--AND project like '%die'",
+              "GROUP BY project",
+              ") ECdrop",
+              "",
+              " ",
+              "",
+              "ON main.project = ECdrop.project",
+              "WHERE [TrendYYYYWW] is not null",
+              "AND [TrendYYYYWW] <> ''"
+            ]
+          },
+          {
+            "name": "_TM_ExtProp_DbTableName",
+            "value": "QueryPOPL3-EC"
+          },
+          {
+            "name": "QueryEditorSerialization",
+            "value": [
+              "<?xml version=\"1.0\" encoding=\"UTF-16\"?><Gemini xmlns=\"QueryEditorSerialization\"><AnnotationContent><![CDATA[<RSQueryCommandText>SELECT",
+              "main.project",
+              ",isnull(POPL3Date,ECDate) AS [TrendYYYYWW]",
+              "FROM",
+              "(",
+              "SELECT distinct project",
+              "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "WHERE 1=1",
+              "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+              "AND trend is not null",
+              "AND trend <> ''",
+              "--AND project like '%die'",
+              ")main",
+              "",
+              " ",
+              "",
+              "LEFT JOIN (",
+              "",
+              " ",
+              "",
+              "SELECT",
+              "project",
+              ",MAX(datepart(ww,trend)) AS [POPL3Date]",
+              "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "WHERE 1=1",
+              "AND milestone = 'POPL3'",
+              "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+              "AND trend is not null",
+              "AND trend <> ''",
+              "--AND project like '%die'",
+              "GROUP BY project",
+              ")POPL3Date",
+              "",
+              " ",
+              "",
+              "ON main.project = POPL3Date.project",
+              "",
+              " ",
+              "",
+              "LEFT JOIN (",
+              "SELECT",
+              "project",
+              ",MAX(datepart(ww,trend)) AS [ECDate]",
+              "FROM [V_ATLAS_PRODUCT_MILESTONES_WITH_PROPERTIES]",
+              "WHERE 1=1",
+              "AND milestone = 'EC'",
+              "AND ([Planning State] not like '%Cancelled%' AND [Planning State] not like '%Completed%' AND [Planning State] not like '%Delete%' AND [Planning State] not like '%Abandoned%')",
+              "AND trend is not null",
+              "AND trend <> ''",
+              "--AND project like '%die'",
+              "GROUP BY project",
+              ") ECdrop",
+              "",
+              " ",
+              "",
+              "ON main.project = ECdrop.project",
+              "WHERE [TrendYYYYWW] is not null",
+              "AND [TrendYYYYWW] <> ''</RSQueryCommandText><RSQueryCommandType>Text</RSQueryCommandType><RSQueryDesignState></RSQueryDesignState>]]></AnnotationContent></Gemini>"
+            ]
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "5891f063-2621-4a86-aeea-183ea92f32b6",
+        "fromTable": "QueryBug",
+        "fromColumn": "IPFamily",
+        "toTable": "QueryIPFamily",
+        "toColumn": "IPFamily"
+      },
+      {
+        "name": "74a82835-f0b4-4db3-91ef-0687a42728d4",
+        "fromTable": "QueryFeature",
+        "fromColumn": "IPFamily",
+        "toTable": "QueryIPFamily",
+        "toColumn": "IPFamily"
+      },
+      {
+        "name": "17d48c33-3727-46f1-a42d-aca26eb7673a",
+        "fromTable": "QueryFeature",
+        "fromColumn": "Designation",
+        "toTable": "QueryDesignations",
+        "toColumn": "Designation"
+      },
+      {
+        "name": "98cc9b43-7b87-4341-b1f0-82c6e8085b1e",
+        "fromTable": "QueryBug",
+        "fromColumn": "Designation",
+        "toTable": "QueryDesignations",
+        "toColumn": "Designation"
+      },
+      {
+        "name": "62650469-51ca-436b-b141-5369574757cd",
+        "fromTable": "QueryFeature",
+        "fromColumn": "SoC Die",
+        "toTable": "SpeedID_mapping",
+        "toColumn": "project",
+        "crossFilteringBehavior": "bothDirections"
+      },
+      {
+        "name": "60c040c6-f156-4f02-9a1d-d8a94628c780",
+        "fromTable": "QueryBug",
+        "fromColumn": "Soc Die",
+        "toTable": "SpeedID_mapping",
+        "toColumn": "project"
+      },
+      {
+        "name": "5bf584ec-8ad2-42ec-962a-566c68100a13",
+        "fromTable": "QueryFeature",
+        "fromColumn": "SoC Die",
+        "toTable": "QueryBOM",
+        "toColumn": "SoC Die"
+      },
+      {
+        "name": "0285c07d-4c3d-474c-ae1f-4e25d980cd15",
+        "fromTable": "QueryFeature",
+        "fromColumn": "SoC Die",
+        "toTable": "SoC_Die",
+        "toColumn": "SoC_Die"
+      },
+      {
+        "name": "984f2bc8-4ea4-478d-b55f-ab951f73d44b",
+        "fromTable": "QueryBug",
+        "fromColumn": "Soc Die",
+        "toTable": "SoC_Die",
+        "toColumn": "SoC_Die"
+      },
+      {
+        "name": "88d9e48a-7fa9-41a0-9479-a0aaca6eecb2",
+        "fromTable": "QueryBug",
+        "fromColumn": "Soc Die",
+        "toTable": "QueryBOM",
+        "toColumn": "SoC Die"
+      },
+      {
+        "name": "5f679aed-86b7-40e4-806e-5a6d1953a4e4",
+        "fromTable": "QueryFeature",
+        "fromColumn": "SoC Die",
+        "toTable": "QueryPOPL3-EC",
+        "toColumn": "project"
+      }
+    ],
+    "roles": [
+      {
+        "name": "IPG_InternalUsers",
+        "modelPermission": "read",
+        "members": [
+          {
+            "memberName": "AMR\\IPG_Dashboard_SuperUsers",
+            "memberId": "S-1-5-21-725345543-602162358-527237240-4603439"
+          }
+        ]
+      },
+      {
+        "name": "IPG_ExternalUsers",
+        "modelPermission": "read",
+        "members": [
+          {
+            "memberName": "AMR\\IPG_Dashboard_Users",
+            "memberId": "S-1-5-21-725345543-602162358-527237240-4603440"
+          }
+        ]
+      },
+      {
+        "name": "IPG_Developers",
+        "modelPermission": "administrator",
+        "members": [
+          {
+            "memberName": "AMR\\IPG_Dashboard_Developers",
+            "memberId": "S-1-5-21-725345543-602162358-527237240-4603422"
+          }
+        ]
+      },
+      {
+        "name": "GER_Faceless_Account",
+        "modelPermission": "read",
+        "members": [
+          {
+            "memberName": "GER\\pas_bis_developer",
+            "memberId": "S-1-5-21-2052111302-1275210071-1644491937-1027479"
+          }
+        ]
+      },
+      {
+        "name": "Role",
+        "modelPermission": "administrator"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "ClientCompatibilityLevel",
+        "value": "600"
+      }
+    ]
+  },
+  "id": "SemanticModel"
+}
